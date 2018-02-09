@@ -16,25 +16,27 @@ width2 = float(width / 2)
 height2 = float(height / 2)
 
 
-def create_line(x1, y1, x2, y2, arrow='none'):
-    canvas.create_line(width2 + x1, height2 - y1, width2 + x2, height2 - y2, arrow=arrow)
+def create_line(x1, y1, x2, y2, arrow='none', color="black", width=1):
+    canvas.create_line(width2 + x1, height2 - y1, width2 + x2, height2 - y2, arrow=arrow, fill=color, width=width)
 
 
 def create_line_vector(vector1, vector2, arrow='none'):
-    create_line(vector1.x, vector1.y, vector2.x, vector2.y, arrow)
+    create_line(vector1.x, vector1.y, vector2.x, vector2.y, arrow, color="red", width=2)
 
 
 def create_text(x1, y1, caption):
     canvas.create_text(width2 + x1, height2 - y1, text=caption)
 
 
-v3d_0 = v.Vector3D(0, 0, 0).to_isometric()
+def create_text_vector(vector, caption, x=0, y=0):
+    create_text(vector.x + x, vector.y + y, caption=caption)
+
+
+v3d_0 = v.Vector3D(0, 0, 0)  .to_isometric()
 v3d_x = v.Vector3D(200, 0, 0).to_isometric()
 v3d_y = v.Vector3D(0, 200, 0).to_isometric()
 v3d_z = v.Vector3D(0, 0, 200).to_isometric()
 
-v3d_1 = v.Vector3D(50, 50, 0).to_isometric().rotate_y(65)
-v3d_2 = v.Vector3D(0, 50, 50).to_isometric().rotate_y(65)
 
 print('v3d_x', v3d_x)
 print('v3d_y', v3d_y)
@@ -42,38 +44,84 @@ print('v3d_z', v3d_z)
 
 master = Tk()
 master.geometry("{0}x{1}+300+200".format(width, height))
-
 canvas = Canvas(master, width=width, height=height, bg="white")
 
-create_line(v3d_0.x, v3d_0.y, v3d_x.x, v3d_x.y, arrow="last")
-create_line(v3d_0.x, v3d_0.y, v3d_y.x, v3d_y.y, arrow="last")
-create_line(v3d_0.x, v3d_0.z, v3d_z.x, v3d_z.y, arrow="last")
 
-create_line_vector(v3d_1, v3d_2)
-create_line_vector(v3d_z, v3d_x)
+def create_coordinate_axis():
+    """Coordinate axis"""
+    create_line(v3d_0.x, v3d_0.y, v3d_x.x, v3d_x.y, arrow="last")
+    create_line(v3d_0.x, v3d_0.y, v3d_y.x, v3d_y.y, arrow="last")
+    create_line(v3d_0.x, v3d_0.z, v3d_z.x, v3d_z.y, arrow="last")
+
+    """Coordinate axis caption"""
+    create_text(v3d_x.x, v3d_x.y + 10, caption="x")
+    create_text(v3d_y.x, v3d_y.y + 10, caption="y")
+    create_text(v3d_z.x, v3d_z.y + 10, caption="z")
 
 
-
-
-
-
-
-# canvas.create_line(w2 - v3d_0.x, h2 - v3d_0.y, w2 - v3d_x.x, h2 - v3d_x.y, arrow="last")
-# canvas.create_line(w2 - v3d_0.x, h2 - v3d_0.y, w2 - v3d_y.x, h2 - v3d_y.y, arrow="last")
-# canvas.create_line(w2 - v3d_0.x, h2 - v3d_0.y, w2 - v3d_z.x, h2 - v3d_z.y, arrow="last")
-#
-create_text(v3d_x.x, v3d_x.y + 10, caption="x")
-create_text(v3d_y.x, v3d_y.y + 10, caption="y")
-create_text(v3d_z.x, v3d_z.y + 10, caption="z")
-
+create_coordinate_axis()
 
 
 canvas.pack()
-# canvas.mainloop()
-master.mainloop()
 
-for i in range(100):
-    create_text(v3d_x.x, v3d_x.y + i, caption=i)
-    time.sleep(0.1)
-    canvas.pack()
-    master.update_idletasks()
+for i in range(360):
+    canvas.delete("all")
+    create_coordinate_axis()
+    # ------------
+    # Cube vectors
+    lenc = 100
+
+    vc1 = v.Vector3D(0, 0, 0)       .translate(0, 0, 0) .rotateY(i) .to_isometric()
+    vc2 = v.Vector3D(0, lenc, 0)    .translate(0, 0, 0) .rotateY(i) .to_isometric()
+                                                                            
+    vc3 = v.Vector3D(0, lenc, lenc)         .translate(0, 0, 0) .rotateY(i) .to_isometric()    #.rotateY(i)    #.rotate_around_point(i, vc1)
+    vc4 = v.Vector3D(0, 0, lenc)            .translate(0, 0, 0) .rotateY(i) .to_isometric()    #.rotateY(i)    #.rotate_around_point(i, vc1)
+    vc5 = v.Vector3D(lenc, 0, lenc)         .translate(0, 0, 0) .rotateY(i) .to_isometric()    #.rotateY(i)    #.rotate_around_point(i, vc1)
+    vc6 = v.Vector3D(lenc, 0, 0)            .translate(0, 0, 0) .rotateY(i) .to_isometric()    #.rotateY(i)    #.rotate_around_point(i, vc1)
+    vc7 = v.Vector3D(lenc, lenc, 0)         .translate(0, 0, 0) .rotateY(i) .to_isometric()    #.rotateY(i)    #.rotate_around_point(i, vc2)
+    vc8 = v.Vector3D(lenc, lenc, lenc)      .translate(0, 0, 0) .rotateY(i) .to_isometric()    #.rotateY(i)    #.rotate_around_point(i, vc2)
+
+    create_text_vector(vc1, "1", 5, 5)
+    create_text_vector(vc2, "2", 5, 5)
+    create_text_vector(vc3, "3", 5, 5)
+    create_text_vector(vc4, "4", 5, 5)
+    create_text_vector(vc5, "5", 5, 5)
+    create_text_vector(vc6, "6", 5, 5)
+    create_text_vector(vc7, "7", 5, 5)
+    create_text_vector(vc8, "8", 5, 5)
+
+    create_line_vector(vc1, vc2)
+    create_line_vector(vc3, vc4)
+    create_line_vector(vc1, vc4)
+    create_line_vector(vc2, vc3)
+    create_line_vector(vc2, vc7)
+    create_line_vector(vc1, vc6)
+    create_line_vector(vc7, vc6)
+    create_line_vector(vc7, vc8)
+    create_line_vector(vc8, vc5)
+    create_line_vector(vc4, vc5)
+    create_line_vector(vc6, vc5)
+    create_line_vector(vc3, vc8)
+
+    # ------------
+
+
+    #Mechanic manipulator
+
+    """Manupulator"""
+    m1 = v.Vector3D(-150, 150, 0).to_isometric()
+    m2 = v.Vector3D(-200, 150, 0).to_isometric()
+
+    create_line_vector(m1, m2)
+
+    """Hand of manipulator"""
+    h1 = m2
+    h2 = v.Vector3D(-200, 150, -50).to_isometric()
+
+    create_line_vector(h1, h2)
+
+    #-------------------
+    master.update()
+    time.sleep(0.01)
+
+master.mainloop()
