@@ -102,7 +102,7 @@ class Vector3D:
         x = self.z * sina + self.x * cosa
         return Vector3D(x, self.y, z)
 
-    def translate(self, x, y, z):
+    def translate(self, x=0, y=0, z=0):
         return Vector3D(self.x + x, self.y + y, self.z + z)
 
     def rotate(origin, point, angle):
