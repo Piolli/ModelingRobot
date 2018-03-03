@@ -1,6 +1,8 @@
 import base.logix as d
 import base.models.mcube as c
 import base.Vector3D as v
+import base.configuration_space as s
+import base.window_obstacle as wo
 from tkinter import *
 import time as t
 
@@ -18,49 +20,85 @@ for i in range(0, 1):
     divjok.update()
 
 # --------REQUIRED TASK---------
-top = Toplevel()
-top.deiconify()
-top.title("Add rectangle")
+conf_space = s.ConfigurationSpace(50, 800, 800)
+conf_space.draw_bg_lines()
+conf_space.draw_axis()
+conf_space.delta_window()
+conf_space.manipulator_window()
+wo.ObstacleWindow(divjok, conf_space)
+obstacles = list()
 
-Label(top, text="Enter x1").grid(row=0, column=0)
-Label(top, text="Enter y1").grid(row=0, column=1)
-Label(top, text="Enter z1").grid(row=0, column=2)
+# Start
+start_point = (1, 1)
+conf_space.draw_intersection_cell(start_point[0], start_point[1], color="blue")
 
-rect_x1 = Entry(top)
-rect_y1 = Entry(top)
-rect_z1 = Entry(top)
-rect_x1.grid(row=1, column=0)
-rect_y1.grid(row=1, column=1)
-rect_z1.grid(row=1, column=2)
-
-Label(top, text="Enter x2").grid(row=2, column=0)
-Label(top, text="Enter y2").grid(row=2, column=1)
-Label(top, text="Enter z2").grid(row=2, column=2)
-
-rect_x2 = Entry(top)
-rect_y2 = Entry(top)
-rect_z2 = Entry(top)
-rect_x2.grid(row=3, column=0)
-rect_y2.grid(row=3, column=1)
-rect_z2.grid(row=3, column=2)
+# Obstacles
+conf_space.draw_intersection_cell(3, 1)
+conf_space.draw_intersection_cell(3, 2)
+conf_space.draw_intersection_cell(1, 2)
+obstacles.append((3, 1))
+obstacles.append((3, 2))
+obstacles.append((1, 2))
+obstacles.append((1, 2))
 
 
-def callback():
-    x1 = int(rect_x1.get())
-    y1 = int(rect_y1.get())
-    z1 = int(rect_z1.get())
+# Target
+target_point = (4, 3)
+conf_space.draw_intersection_cell(target_point[0], target_point[1], "black")
 
-    x2 = int(rect_x2.get())
-    y2 = int(rect_y2.get())
-    z2 = int(rect_z2.get())
+# Draw horizontal lines
+for i in range(6):
+    conf_space.draw_intersection_cell(i, 0, color="darkgreen")
+    conf_space.draw_intersection_cell(i, 4, color="darkgreen")
+    obstacles.append((i, 0))
+    obstacles.append((i, 4))
 
-    cube3 = c.Rectangle(v.Vector3D(x1, y1, z1), v.Vector3D(x2, y2, z2))
-    divjok.add_to_draw(cube3)
-    divjok.draw()
+# Draw vertical lines
+for i in range(5):
+    conf_space.draw_intersection_cell(0, i, color="darkgreen")
+    conf_space.draw_intersection_cell(5, i, color="darkgreen")
+    obstacles.append((0, i))
+    obstacles.append((5, i))
 
+open_tops = list(list(tuple()))
+close_tops = list(list(tuple()))
+open_tops.append([start_point])
 
+is_find_right_top = False
+is_find_top_right_top = False
+is_find_top_left_top = False
+# List of paths to target top
+top_path = list()
+for i in range(0, 10):
+    if len(open_tops) != 0:
+        close_tops.append(open_tops.pop(0))
+    else:
+        break
+    one_top = close_tops.pop(0)
+    next_points = conf_space.find_next_points(one_top[len(one_top) - 1])
 
-enter_data = Button(top, text="Enter", width=15, command=callback).grid(row=4, column=1)
+    for next_point in next_points:
+        if next_point not in obstacles:
+            new_top = one_top.copy()
+            new_top.append(next_point)
+            open_tops.append(new_top)
 
-divjok.loop()
+    for next_point in next_points:
+        if next_point not in obstacles:
+            if next_point == target_point:
+                one_top.append(target_point)
+                print("Finded! ", one_top)
+                top_path.append(one_top)
+
+                # break
+
 # ------------------------------
+print(len(top_path))
+for index_path in range(len(top_path)):
+    path_points = top_path[index_path]
+    for i in range(0, len(path_points) - 1):
+        select_point = path_points[i]
+        next_point = path_points[i + 1]
+        conf_space.draw_intersection_line(v.Vector3D(select_point[0], select_point[1], 0),
+                                          v.Vector3D(next_point[0], next_point[1], 0))
+divjok.loop()
