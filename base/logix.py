@@ -4,8 +4,8 @@ import base.Vector3D as v
 
 class Divjok:
     __models = list()
-    __width = 500
-    __height = 500
+    __width = 1000
+    __height = 1000
     __width2 = float(__width / 2)
     __height2 = float(__height / 2)
 
@@ -104,6 +104,13 @@ class Divjok:
 
     def loop(self):
         self.__master.mainloop()
+
+    def create_point_v(self, vector: v.Vector3D):
+        size = 4
+        self.__canvas.create_oval(self.__width2 + vector.x - size,
+                                  self.__height2 - vector.y - size,
+                                  self.__width2 + vector.x + size,
+                                  self.__height2 - vector.y + size, fill="green")
 
     def draw(self):
         for model in self.__models:

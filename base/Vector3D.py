@@ -8,47 +8,65 @@ class Vector3D:
         self.y = y
         self.z = z
 
+    # def to_isometric(self):
+    #     # Custom isometric
+    #     a = m.radians(-45)
+    #     b = m.radians(45)
+    #
+    #     matr1 = utils.to_matrix(3, [1, 0, 0,
+    #                                 0, m.cos(a), m.sin(a),
+    #                                 0, -m.sin(a), m.cos(a)])
+    #
+    #     matr2 = utils.to_matrix(3, [m.cos(b), 0, -m.sin(b),
+    #                                 0, 1, 0,
+    #                                 m.sin(b), 0, m.cos(b)])
+    #
+    #     matr_mult_12 = utils.matrixmult(matr1, matr2)
+    #
+    #     custom_isometric = matr_mult_12
+    #     # ----------------
+    #
+    #     # values_matr_isometric = [m.sqrt(3), 0, -m.sqrt(3),
+    #     #                          1, 2, 1,
+    #     #                          m.sqrt(2), -m.sqrt(2), m.sqrt(2)]
+    #     # # Multiply on coefficient
+    #     # for i in range(len(values_matr_isometric)):
+    #     #     values_matr_isometric[i] *= (1 / m.sqrt(6))
+    #     #
+    #     # isometric_translate_matrix = utils.to_matrix(3, values_matr_isometric)
+    #
+    #     vector3d = utils.to_matrix(1, [self.y, self.z, self.x])
+    #
+    #     orthogonal_translate_matrix = utils.to_matrix(3, [1, 0, 0,
+    #                                                       0, 1, 0,
+    #                                                       0, 0, 0])
+    #
+    #     # vector_c = (1 / m.sqrt(6)) * utils.matrixmult(isometric_translate_matrix, vector3d)
+    #     # -----Custom
+    #     isometric_translate_matrix = custom_isometric
+    #     # -----------
+    #     vector_c = utils.matrixmult(isometric_translate_matrix, vector3d)
+    #     vector_b = utils.matrixmult(orthogonal_translate_matrix, vector_c)
+    #
+    #     return Vector3D(vector_b[0][0], vector_b[1][0], vector_b[2][0])
+
     def to_isometric(self):
-        # Custom isometric
-        a = m.radians(35)
-        b = m.radians(-45)
+        cavaluer_proj = utils.to_matrix(4, [1, 0, -0.65, 0,
+                                            0, 1, -0.65, 0,
+                                            0, 0, 0, 0,
+                                            0, 0, 0, 1])
 
-        matr1 = utils.to_matrix(3, [1, 0, 0,
-                                    0, m.cos(a), m.sin(a),
-                                    0, -m.sin(a), m.cos(a)])
+        world = utils.to_matrix(1, [self.x, self.y, self.z, 1])
 
-        matr2 = utils.to_matrix(3, [m.cos(b), 0, -m.sin(b),
-                                    0, 1, 0,
-                                    m.sin(b), 0, m.cos(b)])
+        ortho_proj = utils.to_matrix(4, [1, 0, 0, 0,
+                                         0, 1, 0, 0,
+                                         0, 0, 0, 0,
+                                         0, 0, 0, 1])
 
-        matr_mult_12 = utils.matrixmult(matr1, matr2)
+        world = utils.to_matrix(1, [world[1][0], world[2][0], world[0][0], 1])
+        ortho = utils.matrixmult(ortho_proj, utils.matrixmult(cavaluer_proj, world))
 
-        custom_isometric = matr_mult_12
-        # ----------------
-
-        values_matr_isometric = [m.sqrt(3), 0, -m.sqrt(3),
-                                 1, 2, 1,
-                                 m.sqrt(2), -m.sqrt(2), m.sqrt(2)]
-        # Multiply on coefficient
-        for i in range(len(values_matr_isometric)):
-            values_matr_isometric[i] *= (1 / m.sqrt(6))
-
-        isometric_translate_matrix = utils.to_matrix(3, values_matr_isometric)
-
-        vector3d = utils.to_matrix(1, [self.x, self.y, self.z])
-
-        orthogonal_translate_matrix = utils.to_matrix(3, [1, 0, 0,
-                                                          0, 1, 0,
-                                                          0, 0, 0])
-
-        # vector_c = (1 / m.sqrt(6)) * utils.matrixmult(isometric_translate_matrix, vector3d)
-        # -----Custom
-        isometric_translate_matrix = custom_isometric
-        # -----------
-        vector_c = utils.matrixmult(isometric_translate_matrix, vector3d)
-        vector_b = utils.matrixmult(orthogonal_translate_matrix, vector_c)
-
-        return Vector3D(vector_b[0][0], vector_b[1][0], vector_b[2][0])
+        return Vector3D(ortho[0][0], ortho[1][0], ortho[2][0])
 
     def __str__(self) -> str:
         return "x: {0} y: {1} z: {2}".format(self.x, self.y, self.z)

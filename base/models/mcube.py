@@ -27,14 +27,16 @@ class Rectangle:
             print("vc" + str(i+1), self.points[i])
 
     def draw(self, divjok: d.Divjok):
-        divjok.create_text_v( self.points[0].to_isometric(), "1", -10, 5)
-        divjok.create_text_v( self.points[1].to_isometric(), "2", -10, 5)
-        divjok.create_text_v( self.points[2].to_isometric(), "3", 5, 5)
-        divjok.create_text_v( self.points[3].to_isometric(), "4", 5, 5)
-        divjok.create_text_v( self.points[4].to_isometric(), "5", 5, 5)
-        divjok.create_text_v( self.points[5].to_isometric(), "6", 5, -10)
-        divjok.create_text_v( self.points[6].to_isometric(), "7", 10, -10)
-        divjok.create_text_v( self.points[7].to_isometric(), "8", 10, 5)
+        # DRAW NUMBER ABOUT OF EACH TOP OF CUBE
+        # divjok.create_text_v( self.points[0].to_isometric(), "1", -10, 5)
+        # divjok.create_text_v( self.points[1].to_isometric(), "2", -10, 5)
+        # divjok.create_text_v( self.points[2].to_isometric(), "3", 5, 5)
+        # divjok.create_text_v( self.points[3].to_isometric(), "4", 5, 5)
+        # divjok.create_text_v( self.points[4].to_isometric(), "5", 5, 5)
+        # divjok.create_text_v( self.points[5].to_isometric(), "6", 5, -10)
+        # divjok.create_text_v( self.points[6].to_isometric(), "7", 10, -10)
+        # divjok.create_text_v( self.points[7].to_isometric(), "8", 10, 5)
+
 
         divjok.create_line_v(self.points[0].to_isometric(),  self.points[1].to_isometric())
         divjok.create_line_v(self.points[2].to_isometric(),  self.points[3].to_isometric())
@@ -48,6 +50,10 @@ class Rectangle:
         divjok.create_line_v(self.points[3].to_isometric(),  self.points[4].to_isometric())
         divjok.create_line_v(self.points[5].to_isometric(),  self.points[4].to_isometric())
         divjok.create_line_v(self.points[2].to_isometric(),  self.points[7].to_isometric())
+
+        # Fill start point and end point
+        divjok.create_point_v(self.__start.to_isometric())
+        divjok.create_point_v(self.__end.to_isometric())
 
     def rotate_y(self, angle):
         for i in range(0, 8):
