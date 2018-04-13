@@ -23,8 +23,9 @@ class Rectangle:
 
         self.points = [self.vc1, self.vc2, self.vc3, self.vc4,
                        self.vc5, self.vc6, self.vc7, self.vc8]
-        for i in range(0, 8):
-            print("vc" + str(i+1), self.points[i])
+
+        # for i in range(0, 8):
+        #     print("vc" + str(i+1), self.points[i])
 
     def draw(self, divjok: d.Divjok):
         # DRAW NUMBER ABOUT OF EACH TOP OF CUBE

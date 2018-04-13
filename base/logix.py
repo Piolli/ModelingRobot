@@ -10,9 +10,9 @@ class Divjok:
     __height2 = float(__height / 2)
 
     def __init__(self) -> None:
-        self.__master = Tk()
-        self.__master.geometry("{0}x{1}+300+200".format(self.__width, self.__height))
-        self.__canvas = Canvas(self.__master, width=self.__width, height=self.__height, bg="white")
+        self.master = Tk()
+        self.master.geometry("{0}x{1}+300+200".format(self.__width, self.__height))
+        self.__canvas = Canvas(self.master, width=self.__width, height=self.__height, bg="white")
         self.__canvas.pack()
 
     def create_line(self, x1: int, y1: int, x2: int, y2: int, arrow='none', color="black", width=1):
@@ -100,10 +100,10 @@ class Divjok:
         self.__models.append(model)
 
     def update(self):
-        self.__master.update()
+        self.master.update()
 
     def loop(self):
-        self.__master.mainloop()
+        self.master.mainloop()
 
     def create_point_v(self, vector: v.Vector3D):
         size = 4
@@ -115,4 +115,4 @@ class Divjok:
     def draw(self):
         for model in self.__models:
             model.draw(self)
-        self.__master.update()
+        self.master.update()

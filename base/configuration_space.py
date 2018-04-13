@@ -15,13 +15,18 @@ class ConfigurationSpace:
         self.__X0 = width / 2
         self.__Y0 = height / 2
 
+        # Space dimension
         self.n = 2
 
-        top = Toplevel()
-        top.deiconify()
-        top.title("Configuration space")
-        top.geometry("{0}x{1}".format(self.__width, self.__height))
-        self.canvas = Canvas(top, width=self.__width, height=self.__height, bg="white")
+        # For full search
+        self.q0 = []
+        self.qT = []
+
+        self.top = Toplevel()
+        self.top.deiconify()
+        self.top.title("Configuration space")
+        self.top.geometry("{0}x{1}".format(self.__width, self.__height))
+        self.canvas = Canvas(self.top, width=self.__width, height=self.__height, bg="white")
         self.canvas.pack()
 
     def draw_bg_lines(self):
@@ -47,16 +52,18 @@ class ConfigurationSpace:
         self.draw_axis()
         self.draw_bg_lines()
 
-    def delta_window(self):
-        top = Toplevel()
-        top.deiconify()
-        top.title("Set delta")
+    def get_delta_frame(self, master):
+        top = Frame(master)
+        # top.deiconify()
+        # top.title("Set delta")
 
         Label(top, text="delta: ").grid(row=0, column=0)
         self.__delta_entry = Entry(top)
         self.__delta_entry.grid(row=0, column=1)
 
         Button(top, text="Set delta", command=self.delta_callback).grid(row=1, column=1)
+
+        return top
 
     def delta_callback(self):
         delta = int(self.__delta_entry.get())
@@ -165,11 +172,11 @@ class ConfigurationSpace:
                  ]
         return tempM
 
-    def manipulator_window(self):
+    def get_manipulator_frame(self, master):
 
-        top = Toplevel()
-        top.deiconify()
-        top.title("Add manipulator")
+        top = Frame(master)
+        # top.deiconify()
+        # top.title("Add manipulator")
 
         q0_list = list()
         qt_list = list()
@@ -208,18 +215,17 @@ class ConfigurationSpace:
 
         def draw_callback():
             if len(q0_list) == 2:
-                v0 = v.Vector3D(0, 0, 0)
-                self.redraw()
-                v1, v2 = self.manipulator(int(q0_list[0].get()), int(q0_list[1].get()), 90)
-                v3, v4 = self.manipulator(int(qt_list[0].get()), int(qt_list[1].get()), 90)
-                self.draw_line_for_manipulator(v0, v1)
-                self.draw_line_for_manipulator(v1, v2)
+                self.q0 = [int(q0_list[0].get()), int(q0_list[1].get())]
+                self.qT = [int(qt_list[0].get()), int(qt_list[1].get())]
 
-                self.draw_line_for_manipulator(v0, v3)
-                self.draw_line_for_manipulator(v3, v4)
+                self.draw_point(self.q0[0], self.q0[1], color="green")
+                self.draw_point(self.qT[0], self.qT[1], color="yellow")
+
 
         Button(top, text="Set n", command=set_n_callback).grid(row=0, column=2)
         Button(top, text="Draw", command=draw_callback).grid(row=0, column=3)
+
+        return top
 
     def draw_rectangle(self, vector1: v.Vector3D, vector2: v.Vector3D):
         # self.draw_line(v1, v1.translate(x=v2.x))
@@ -360,8 +366,11 @@ class ConfigurationSpace:
         return TT
 
     def draw_path(self, path_array, color="blue"):
+        draw_points = []
         for point in path_array:
-            self.draw_point(point[0], point[1], color=color)
+            draw_points.append(self.draw_point(point[0], point[1], color=color))
+
+        return draw_points
 
     # Get all neighbours with help get_TT
     def neighbours(self, qc):

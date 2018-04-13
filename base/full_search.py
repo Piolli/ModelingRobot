@@ -1,168 +1,36 @@
-import base.Vector3D as v
+import time
 
 
 class FullSearch:
-    def __init__(self, q0, qT, obstacle_window, conf_space):
-        self.q0 = q0
-        self.qT = qT
+    def __init__(self, obstacles, conf_space, step_by_step):
         self.conf_space = conf_space
-        self.pathPoints = []
-        self.q0test = 0
-        self.changePathK = 0
-        self.zaprAdd = []
-        self.zaprMass = []
-        self.publicPath = []
-        self.q0temp = q0
-        self.zaprPoints = []
-        self.failtest = 0
-        self.obstacles = obstacle_window.get_array_default_obstacles()
-        self.prcol = len(self.obstacles)
-
+        self.obstacles = obstacles
         self.forbidden_points = []
         self.change_path_points = []
-        self.complete_path = [q0]
+        self.complete_path = [conf_space.q0]
         self.count_change_path = 0
         self.complete_path_is_finded = False
         self.is_show_data_path = False
+        self.previous_draw_points = []
 
-    def full_search(self, q0, qT):
+        self.start_time = time.time()
 
-        id = 0
-        temporary_point = q0[:]
-        temporary_point.append(id)
+        # For step by step finding path (bool)
+        self.step_by_step = step_by_step
 
-        print("temp", temporary_point)
+        # For create report of data
+        self.report = open("/Users/alexandr/Desktop/Моделирование информационных процессов/MainProject/base/report.txt", mode="w", encoding="UTF-8")
 
-        opened = [q0]
-        closed = []
-        path_temp = [temporary_point]
-        path = []
+        # For draw start and end conf points
+        self.q0 = conf_space.q0
+        self.qT = conf_space.qT
 
-        for i in range(len(self.zaprPoints)):
-            self.conf_space.canvas.delete(self.zaprPoints[i])
-
-        while self.check_point(qT, opened) == 0:
-            if (len(opened) == 0):
-                failtest = 1
-                print("failtest", failtest)
-                break
-            Near = self.conf_space.neighbours(opened[0])
-            closed.append(opened[0])
-            for i in range(len(Near)):
-                if ((self.check_point(Near[i], opened) == 0)
-                    and (self.check_point(Near[i], closed) == 0)
-                    and (self.borders(Near[i]) == 1)
-                    and (self.check_point(Near[i], self.zaprMass) == 0)
-                    # and not (self.check_is_on_obstacle(Near[i], 100, self.obstacles))
-                    ):
-                    opened.append(Near[i])
-                    temporary_point = Near[i][:]
-                    temporary_point.append(id)
-                    path_temp.append(temporary_point)
-
-            del opened[0]
-            id += 1
-
-        print("path", path_temp)
-        print("id", id)
-
-        id = len(path_temp) - 1
-
-        # For create path
-        while (id != 0):
-            temporary_point = path_temp[id][:]
-            del temporary_point[-1]
-            path.append(temporary_point)
-            id = path_temp[id][self.conf_space.n]
-
-        if (self.failtest == 0):
-            path.append(q0)
-            path.reverse()
-            print("path", path)
-            # conf_space.draw_path(path)
-            if (self.q0test == 0):
-                q0test = 1
-                self.changePathK = self.changePathK + 1
-                print("len path", len(path))
-                for i in range(1, len(path) - 1):
-                    self.pathPoints.append([])
-                    self.pathPoints[i - 1] = self.conf_space.draw_point(path[i][0], path[i][1], color="light blue")
-            if (len(self.zaprMass) != 0):
-                print('q(%i): %s' % (self.changePathK, path[0]))
-                print('ZAPR(%i): %s' % (self.changePathK, self.zaprMass))
-                print('PATH(%i): %s' % (self.changePathK, path))
-                tempoval0 = self.conf_space.draw_point(self.q0temp[0], self.q0temp[1],
-                                                       color="orange")  # Отображение начальной точки
-                self.changePathK = self.changePathK + 1
-                if (1 == 1):
-                    # for i in range(len(self.pathPoints)):
-                    #     self.conf_space.canvas.delete(self.pathPoints[i])
-                    pathPoints = []
-                    for i in range(1, len(self.publicPath) - 1):
-                        pathPoints.append([])
-                        pathPoints[i - 1] = self.conf_space.draw_point(self.publicPath[i][0], self.publicPath[i][1],
-                                                                       color="light blue")
-                    temp = len(pathPoints)
-                    pathPoints.append([])
-                    pathPoints[len(pathPoints) - 1] = self.conf_space.draw_point(path[0][0], path[0][1],
-                                                                                 color="lawn green")
-
-                    for i in range(1, len(path) - 1):
-                        pathPoints.append([])
-                        pathPoints[temp + i - 1] = self.conf_space.draw_point(path[i][0], path[i][1],
-                                                                              color="light blue")  # Отображение начальной точки
-                    # for i in range(len(self.zaprPoints)):
-                    #     self.conf_space.canvas.delete(self.zaprPoints[i])
-                    zaprPoints = []
-                    for i in range(len(self.zaprMass)):
-                        zaprPoints.append([])
-                        zaprPoints[i] = self.conf_space.draw_point(self.zaprMass[i][0], self.zaprMass[i][1],
-                                                                   color="red")
-
-                    print("Pause", 'Точка смены пути q%i: %s (Выделена зеленым)\nPress OK' % (
-                        self.changePathK - 1, self.publicPath[len(self.publicPath) - 1]))
-            if (self.prcol != 0):
-                for i in range(len(path)):
-                    if (self.check_is_on_obstacle(path[i], 100, self.obstacles)):
-                        self.zaprMass.append(path[i])
-                        sos_temp = self.conf_space.neighbours(path[i])
-                        for i in range(len(sos_temp)):
-                            if self.check_is_on_obstacle(sos_temp[i], 100, self.obstacles) and self.check_point(
-                                    sos_temp[i],
-                                    self.zaprMass) == 0:
-                                self.zaprAdd.append(sos_temp[i])
-                        self.full_search(self.publicPath[len(self.publicPath) - 1], qT)
-                        return 0
-                    else:
-                        if (self.check_point(path[i], self.publicPath) == 0):
-                            self.publicPath.append(path[i])
-                self.publicPath.append(qT)
-
-                # for i in range(len(self.pathPoints)):
-                #     self.conf_space.canvas.delete(self.pathPoints[i])
-
-                pathPoints = []
-
-                # for i in range(len(self.zaprPoints)):
-                #     self.conf_space.canvas.delete(self.zaprPoints[i])
-
-                zaprPoints = []
-
-                for i in range(1, len(self.publicPath) - 2):
-                    pathPoints.append([])
-                    pathPoints[i - 1] = self.conf_space.draw_point(self.publicPath[i][0], self.publicPath[i][1],
-                                                                   color="light blue")
-
-                for i in range(len(self.zaprMass)):
-                    zaprPoints.append([])
-                    zaprPoints[i] = self.conf_space.draw_point(self.zaprMass[i][0], self.zaprMass[i][1],
-                                                               color="red")  # Отображение начальной точки
-            print("Success")
-            print("Pause", 'Цель достигнута, путь в файле\nPress OK')
+        self.my_full_search(self.q0, self.qT)
 
     def my_full_search(self, q0, qT):
         if self.complete_path_is_finded:
             return
+
         opened = [q0]
         closed = []
         # Complete path for this iteration
@@ -180,7 +48,6 @@ class FullSearch:
             if len(opened) == 0:
                 print("Путь не может быть найден")
                 self.complete_path_is_finded = False
-                self.is_show_data_path = True
                 break
 
             # Get first top and delete from opened list
@@ -208,7 +75,6 @@ class FullSearch:
 
         full_search_path.append(q0)
         full_search_path.reverse()
-        # self.conf_space.draw_path(full_search_path)
 
         if not self.complete_path_is_finded:
             for i in range(len(full_search_path)):
@@ -216,32 +82,61 @@ class FullSearch:
                 if self.check_is_on_obstacle(point, 100, self.obstacles) and not self.is_show_data_path:
                     previous_point = full_search_path[i - 1]
                     self.forbidden_points.append(point)
-                    print("Ранее неизвестная запрещенная точка:", point)
+                    self.report.write("Смена пути №%d\n-------------\n" % (len(self.forbidden_points)-1))
+                    self.report.write("Ранее неизвестная запрещенная точка: %s\n" % point)
+                    self.report.write("Путь: %s\n" % full_search_path)
                     self.change_path_points.append(previous_point)
-                    print("Возвращаемся в предыдущую точку (точка смены пути) и начинаем сначала:", previous_point)
-                    print("----------------")
+                    self.report.write("Возвращаемся в предыдущую точку (точка смены пути) и начинаем сначала: %s\n-------------\n" % previous_point)
+
+                    if self.step_by_step:
+                        self.clear_previous_path()
+                        self.conf_space.draw_path(self.complete_path)
+                        self.previous_draw_points = self.conf_space.draw_path(full_search_path)
+                        self.draw_start_end_points()
+                        self.conf_space.draw_path(self.forbidden_points, color="red")
+                        self.conf_space.draw_point(previous_point[0], previous_point[1], color="darkgreen")
+                        self.conf_space.top.update()
+                        time.sleep(0.5)
+
                     self.my_full_search(previous_point, qT)
                     return 0
                 else:
                     # Adding previous point to complete_path
                     self.complete_path.append(point)
+                    if point == self.qT:
+                        self.complete_path_is_finded = True
 
-        self.is_show_data_path = True
+        self.clear_previous_path()
 
         self.conf_space.draw_path(self.change_path_points, color="darkgreen")
         self.conf_space.draw_path(self.forbidden_points, color="red")
 
         self.complete_path.append(qT)
         self.conf_space.draw_path(self.complete_path)
+        self.draw_start_end_points()
 
         if self.complete_path_is_finded and not self.is_show_data_path:
-            print("Путь найден:", full_search_path)
-        elif not self.is_show_data_path:
+            self.report.write("Путь найден: %s\n" % full_search_path)
+            self.report.write("Затраченное время: %d сек." % (time.time() - self.start_time))
+            self.is_show_data_path = True
+        elif not self.complete_path_is_finded and not self.is_show_data_path:
             print("Путь не найден")
+            self.is_show_data_path = True
+            self.report.write("Путь не может быть найден!\n")
+            self.report.write("Затраченное время: %d сек." % (time.time() - self.start_time))
 
-
+        self.report.close()
 
         return 0
+
+    def draw_start_end_points(self):
+        self.conf_space.draw_point(self.q0[0], self.q0[1], color="green")
+        self.conf_space.draw_point(self.qT[0], self.qT[1], color="yellow")
+
+    def clear_previous_path(self):
+        for point in self.previous_draw_points:
+            self.conf_space.canvas.delete(point)
+        self.conf_space.top.update()
 
     def check_neighbour(self, neighbour, opened, closed):
         if (neighbour not in opened
@@ -259,27 +154,11 @@ class FullSearch:
                 return False
         return True
 
-    def borders(self, point):
-        Border = [-180, 180]
-        for i in range(2):
-            if (point[i] < Border[0]):
-                return 0
-            elif (point[i] > Border[1]):
-                return 0
-        return 1
-
-    def check_point(self, point, array):
-        if (point in array):
-            return 1
-        else:
-            return 0
-
     def check_is_on_obstacle(self, q, lenght, obstacles) -> bool:
         if len(obstacles) == 0:
             return False
+
         lenght = 100
-        Pi, Pi1 = self.conf_space.manipulator(q[0], q[1], lenght)
-        P = [[Pi, Pi1], [v.Vector3D(0, 0, 0), Pi]]
 
         for obstacle in obstacles:
             for i in range(self.conf_space.n):
@@ -287,15 +166,6 @@ class FullSearch:
                 point_i = self.conf_space.get_manipulator_position(i, q, lenght)
                 point_i1 = self.conf_space.get_manipulator_position(i + 1, q, lenght)
                 while t <= 1:
-                    # Ai = [Pi1.x + (Pi.x - Pi1.x) * t,
-                    #       Pi1.y + (Pi.y - Pi1.y) * t,
-                    #       Pi1.z + (Pi.z - Pi1.z) * t
-                    #       ]
-                    #
-                    # translateAi = [Ai[0] - obstacle[0],
-                    #                Ai[1] - obstacle[1],
-                    #                Ai[2] - obstacle[2]]
-                    #
 
                     x = point_i1[0][0] + (point_i[0][0] - point_i1[0][0]) * t
                     y = point_i1[1][0] + (point_i[1][0] - point_i1[1][0]) * t
