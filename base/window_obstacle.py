@@ -35,6 +35,8 @@ class ObstacleWindow:
         self.rect_y2.grid(row=3, column=1)
         self.rect_z2.grid(row=3, column=2)
 
+        self.type_of_using_obstacles = 1
+
         self.obstacles = self.get_array_default_obstacles()
 
         Button(self.frame, text="Enter", width=15, command=self.callback).grid(row=4, column=1)
@@ -78,28 +80,23 @@ class ObstacleWindow:
                                obstacle[3], obstacle[4], obstacle[5])
 
 
-        # Not find path
-        # self.draw_obstacle(-500,  -56,   80,  500,   -24,  120)
-        # self.draw_obstacle( 60,  -340, -200,  500,  -60,  200)
-        # self.draw_obstacle(-500, -340, -400, -140,  -60,  400)
-        # self.draw_obstacle(-500, -500, -6,    500,  500,  -2)
-        # self.draw_obstacle(-140,  140, -400, -100,  180,  400)
-
     def get_array_default_obstacles(self):
         obstacles = []
 
-        # Find path
-        obstacles.append((-500,  24,   140,  500,   56,  180))
-        obstacles.append(( 60,  -340, -200,  500,  -60,  200))
-        obstacles.append((-500, -340, -400, -140,  -60,  400))
-        obstacles.append((-500, -500, -6,    500,  500,  -2))
-        obstacles.append((-140,  140, -400, -100,  180,  400))
-        #
-        # Not find path
-        # obstacles.append((-500,  -56,   80,  500,   -24,  120))
-        # obstacles.append(( 60,  -340, -200,  500,  -60,  200))
-        # obstacles.append((-500, -340, -400, -140,  -60,  400))
-        # obstacles.append((-500, -500, -6,    500,  500,  -2))
-        # obstacles.append((-140,  140, -400, -100,  180,  400))
+        if self.type_of_using_obstacles == 1:
+            # Not found
+            obstacles.append((-500, -56, 80, 500, -24, 120))
+            obstacles.append((60, -340, -200, 500, -60, 200))
+            obstacles.append((-500, -340, -400, -140, -60, 400))
+            obstacles.append((-500, -500, -6, 500, 500, -2))
+            obstacles.append((-140, 140, -400, -100, 180, 400))
+        elif self.type_of_using_obstacles == 2:
+            # Find path
+            obstacles.append((-500, 24, 140, 500, 56, 180))
+            obstacles.append((60, -340, -200, 500, -60, 200))
+            obstacles.append((-500, -340, -400, -140, -60, 400))
+            obstacles.append((-500, -500, -6, 500, 500, -2))
+            obstacles.append((-140, 140, -400, -100, 180, 400))
+
 
         return obstacles

@@ -19,8 +19,8 @@ class Divjok:
         self.__canvas.create_line(self.__width2 + x1, self.__height2 - y1, self.__width2 + x2, self.__height2 - y2,
                                   arrow=arrow, fill=color, width=width)
 
-    def create_line_v(self, vector1: v, vector2: v, arrow='none'):
-        self.create_line(vector1.x, vector1.y, vector2.x, vector2.y, arrow, color="red", width=2)
+    def create_line_v(self, vector1: v, vector2: v, arrow='none', color='red', width=2):
+        self.create_line(vector1.x, vector1.y, vector2.x, vector2.y, arrow, color=color, width=width)
 
     def create_text(self, x1: int, y1: int, caption: str):
         self.__canvas.create_text(self.__width2 + x1, self.__height2 - y1, text=caption, font=("Calibri", 14))

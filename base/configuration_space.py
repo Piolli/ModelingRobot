@@ -7,10 +7,12 @@ import base.matrixutils as utils
 
 
 class ConfigurationSpace:
-    def __init__(self, delta: int, width, height) -> None:
+    def __init__(self, delta: int, width, height, divjok: l.Divjok) -> None:
         self.__width = width
         self.__height = height
         self.__delta = delta
+
+        self.divjok = divjok
 
         self.__X0 = width / 2
         self.__Y0 = height / 2
@@ -21,6 +23,8 @@ class ConfigurationSpace:
         # For full search
         self.q0 = []
         self.qT = []
+
+        self.length = 100
 
         self.top = Toplevel()
         self.top.deiconify()
@@ -77,6 +81,8 @@ class ConfigurationSpace:
 
         x *= mult_coef_x
         y *= mult_coef_y
+
+
         return self.canvas.create_oval(x - size + self.__X0, self.__Y0 - (y - size), x + size + self.__X0,
                                        self.__Y0 - (y + size), width=0, fill=color)
         # print(x - size + self.__X0, self.__Y0 - (y - size), x + size + self.__X0, self.__Y0 - (y + size))
@@ -162,11 +168,13 @@ class ConfigurationSpace:
         tempM = [[round(m.cos(m.radians(omega)), 6),
                   -round(m.sin(m.radians(omega)), 6) * round(m.cos(m.radians(alpha)), 6),
                   round(m.sin(m.radians(omega)), 6) * round(m.sin(m.radians(alpha)), 6),
-                  a * round(m.cos(m.radians(omega)), 6)],
+                  a * round(m.cos(m.radians(omega)), 6)
+                  ],
                  [round(m.sin(m.radians(omega)), 6),
                   round(m.cos(m.radians(omega)), 6) * round(m.cos(m.radians(alpha)), 6),
                   -round(m.cos(m.radians(omega)), 6) * round(m.sin(m.radians(alpha)), 6),
-                  a * round(m.sin(m.radians(omega)), 6)],
+                  a * round(m.sin(m.radians(omega)), 6)
+                  ],
                  [0, m.sin(m.radians(alpha)), round(m.cos(m.radians(alpha)), 6), s],
                  [0, 0, 0, 1]
                  ]
@@ -202,6 +210,8 @@ class ConfigurationSpace:
             for widget in qt_frame.winfo_children():
                 widget.destroy()
 
+            self.n = nn
+
             for i in range(nn):
                 q0_entry = Entry(q0_frame)
                 Label(q0_frame, text="Введите q0_" + str(i)).grid(row=i, column=0)
@@ -214,12 +224,41 @@ class ConfigurationSpace:
                 qt_list.append(qt_entry)
 
         def draw_callback():
-            if len(q0_list) == 2:
-                self.q0 = [int(q0_list[0].get()), int(q0_list[1].get())]
-                self.qT = [int(qt_list[0].get()), int(qt_list[1].get())]
+            # if len(q0_list) == 2:
+            #     self.q0 = [int(q0_list[0].get()), int(q0_list[1].get())]
+            #     self.qT = [int(qt_list[0].get()), int(qt_list[1].get())]
+            #
+            #     self.draw_point(self.q0[0], self.q0[1], color="green")
+            #     self.draw_point(self.qT[0], self.qT[1], color="yellow")
+            self.q0 = []
+            self.qT = []
 
-                self.draw_point(self.q0[0], self.q0[1], color="green")
-                self.draw_point(self.qT[0], self.qT[1], color="yellow")
+
+            for q0_item in q0_list:
+                self.q0.append(int(q0_item.get()))
+
+            for qT_item in qt_list:
+                self.qT.append(int(qT_item.get()))
+
+            self.draw_point(self.q0[0], self.q0[1], color="green")
+            self.draw_point(self.qT[0], self.qT[1], color="yellow")
+
+            n = len(q0_list)
+            for i in range(1, n+1):
+                q0_start = self.get_manipulator_position(i-1, self.q0, self.length)
+                q0_end = self.get_manipulator_position(i, self.q0, self.length)
+                self.divjok.create_line_v(v.Vector3D(q0_start[0][0], q0_start[1][0], q0_start[2][0]).to_isometric(),
+                                          v.Vector3D(  q0_end[0][0],   q0_end[1][0],   q0_end[2][0]).to_isometric(),
+                                          color="darkblue", width=4, arrow="last")
+
+                qt_start = self.get_manipulator_position(i - 1, self.qT, self.length)
+                qt_end = self.get_manipulator_position(i, self.qT, self.length)
+                self.divjok.create_line_v(v.Vector3D(qt_start[0][0], qt_start[1][0], qt_start[2][0]).to_isometric(),
+                                          v.Vector3D(qt_end[0][0], qt_end[1][0], qt_end[2][0]).to_isometric(),
+                                          color="darkgreen", width=4, arrow="last")
+
+                self.divjok.update()
+
 
 
         Button(top, text="Set n", command=set_n_callback).grid(row=0, column=2)
